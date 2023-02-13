@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model":  "infiniteminerblock:block/infinite_ore_miner" }
+  }
+}
