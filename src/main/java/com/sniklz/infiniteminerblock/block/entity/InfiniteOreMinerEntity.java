@@ -1,6 +1,8 @@
 package com.sniklz.infiniteminerblock.block.entity;
 
+import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
 import com.sniklz.infiniteminerblock.screen.InfiniteOreMinerMenu;
+import com.sniklz.infiniteminerblock.util.BlockAndSize;
 import com.sniklz.infiniteminerblock.util.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,11 +19,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -39,6 +43,27 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
 
     protected final ContainerData data = null;
 
+    protected Block mineableBlock;
+    protected int oreSize;
+
+    //protected ChunkPos chunkPos;
+
+    public Block getMineableBlock() {
+        return mineableBlock;
+    }
+
+    public void setMineableBlock(Block mineableBlock) {
+        this.mineableBlock = mineableBlock;
+    }
+
+    public int getOreSize() {
+        return oreSize;
+    }
+
+    public void setOreSize(int oreSize) {
+        this.oreSize = oreSize;
+    }
+
     private final ItemStackHandler itemStackHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -55,10 +80,10 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         }
     };
 
-    public void setRandomElement(Block randomElement) {
+   /* public void setRandomElement(Block randomElement) {
         this.randomElement = randomElement;
     }
-
+*/
     public void someWorks(Level level, BlockPos pos) {
         System.out.println(level.getChunkAt(pos).getPos());
         ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
@@ -118,17 +143,15 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     protected void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
         nbt.put("inventory", itemStackHandler.serializeNBT());
-        nbt.putString("randomElement", randomElement.getRegistryName().toString());
-
+        //nbt.putInt("x", chunkPos.x);
+        //nbt.putInt("z", chunkPos.z);
     }
 
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
         itemStackHandler.deserializeNBT(nbt.getCompound("inventory"));
-        String name = nbt.getString("randomElement");
-        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(name));
-        randomElement = block;
+        //this.chunkPos = new ChunkPos(nbt.getInt("x"), nbt.getInt("z"));
     }
 
     private static boolean canInsertItemInOutputSlot(SimpleContainer inventory, ItemStack itemStack) {
@@ -142,6 +165,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     private int timer = 0;
 
 
+
     public void drops() {
         SimpleContainer inventory = new SimpleContainer(itemStackHandler.getSlots());
         inventory.setItem(0, itemStackHandler.getStackInSlot(0));
@@ -149,28 +173,43 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         Containers.dropContents(this.level, this.worldPosition, inventory);
     }
 
-    private Block randomElement;
+    //private Block randomElement;
 
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, InfiniteOreMinerEntity pEntity) {
         if (level.isClientSide) {
             return;
         }
+        if(pEntity.getMineableBlock() == null && pEntity.getOreSize() == 0) {
+            SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
+            BlockAndSize blockAndSize = saveLoadMineChunk.FindBlockAndSizeByChunkPos(level.getChunkAt(blockPos).getPos());
+            if(blockAndSize != null) {
+                pEntity.setMineableBlock(blockAndSize.getChunkBlock());
+                pEntity.setOreSize(blockAndSize.getBlockSize());
+                pEntity.setChanged();
+            }
+        }
+
 
         pEntity.timer += 1;
-        if (pEntity.timer >= 60) {
+        if (pEntity.timer >= 60 && pEntity.getOreSize() > 0) {
 
-            if (pEntity.randomElement != null) {
+            if (pEntity.getMineableBlock() != null) {
 
                 int slotsCount = pEntity.itemStackHandler.getSlots();
                 SimpleContainer inventory = new SimpleContainer(slotsCount);
                 inventory.setItem(0, pEntity.itemStackHandler.getStackInSlot(0));
-                if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.randomElement))) {
+                if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.getMineableBlock()))) {
 
                     //pEntity.itemStackHandler.extractItem(0, 1, false);
 
-                    pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.randomElement,
+                    pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.getMineableBlock(),
                             pEntity.itemStackHandler.getStackInSlot(0).getCount() + 1));
                     pEntity.timer = 0;
+                    int oreSize1 = pEntity.getOreSize();
+                    oreSize1 -=1;
+                    pEntity.setOreSize(oreSize1);
+                    SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
+                    saveLoadMineChunk.updateOreSize(level.getChunkAt(blockPos).getPos(), oreSize1--);
                 }
             }
         }

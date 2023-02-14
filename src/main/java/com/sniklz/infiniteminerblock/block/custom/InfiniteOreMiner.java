@@ -2,14 +2,18 @@ package com.sniklz.infiniteminerblock.block.custom;
 
 import com.sniklz.infiniteminerblock.block.entity.BlockEntityRegister;
 import com.sniklz.infiniteminerblock.block.entity.InfiniteOreMinerEntity;
+import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
+import com.sniklz.infiniteminerblock.util.BlockAndSize;
 import com.sniklz.infiniteminerblock.util.ModTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -18,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -25,6 +30,7 @@ import net.minecraftforge.registries.tags.ITag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 public class InfiniteOreMiner extends BaseEntityBlock {
@@ -42,23 +48,25 @@ public class InfiniteOreMiner extends BaseEntityBlock {
     }
 
     @Override
-    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-        if(pState.getBlock() != pNewState.getBlock()) {
-            BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
-            if(blockEntity instanceof InfiniteOreMinerEntity) {
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+        if (!level.isClientSide) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof InfiniteOreMinerEntity) {
                 ((InfiniteOreMinerEntity) blockEntity).drops();
             }
         }
-        super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
+
+        return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
+
     }
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos,
                                  Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
 
-        if(!pLevel.isClientSide) {
+        if (!pLevel.isClientSide) {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
-            if(blockEntity instanceof InfiniteOreMinerEntity) {
+            if (blockEntity instanceof InfiniteOreMinerEntity) {
                 NetworkHooks.openGui(((ServerPlayer) pPlayer), (InfiniteOreMinerEntity) blockEntity, pPos);
             } else {
                 throw new IllegalStateException("Our container provider is missing");
@@ -76,12 +84,34 @@ public class InfiniteOreMiner extends BaseEntityBlock {
     @Override
     public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving) {
         super.onPlace(pState, pLevel, pPos, pOldState, pIsMoving);
-        if(!pLevel.isClientSide) {
+        if (!pLevel.isClientSide) {
             InfiniteOreMinerEntity entity = (InfiniteOreMinerEntity) pLevel.getBlockEntity(pPos);
+            SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(pLevel);
+            ChunkPos chunkPos = pLevel.getChunkAt(pPos).getPos();
+            if (saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos) == null) {
+                ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
+                Optional<Block> block = itag.getRandomElement(new Random());
+                int ore_size = (int) (100 + (Math.random() * (500 + chunkPos.x + chunkPos.z)));
+                BlockAndSize blockAndSize = new BlockAndSize(block.get(), ore_size);
+                saveLoadMineChunk.putNewChunkInfoToMap(chunkPos, blockAndSize);
+
+                entity.setMineableBlock(block.get());
+                entity.setOreSize(ore_size);
+                entity.setChanged();
+                //this.entity.someWorks(pLevel, pPos);
+            } else {
+                BlockAndSize blockAndSize = saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos);
+                entity.setMineableBlock(blockAndSize.getChunkBlock());
+                entity.setOreSize(blockAndSize.getBlockSize());
+                entity.setChanged();
+                //System.out.println(entity.toString());
+            }
+            /*InfiniteOreMinerEntity entity = (InfiniteOreMinerEntity) pLevel.getBlockEntity(pPos);
             Map<BlockPos, BlockEntity> blockEntities = pLevel.getChunkAt(pPos).getBlockEntities();
             ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
             Block block = itag.getRandomElement(new Random()).get();
-            entity.setRandomElement(block);
+            entity.setRandomElement(block);*/
+
             //this.entity.someWorks(pLevel, pPos);
         }
     }
