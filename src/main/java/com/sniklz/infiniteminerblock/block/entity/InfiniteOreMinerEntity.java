@@ -55,10 +55,14 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         }
     };
 
+    public void setRandomElement(Block randomElement) {
+        this.randomElement = randomElement;
+    }
+
     public void someWorks(Level level, BlockPos pos) {
         System.out.println(level.getChunkAt(pos).getPos());
         ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
-        this.randomElement = itag.getRandomElement(new Random());
+        //this.randomElement = itag.getRandomElement(new Random());
     }
 
     private LazyOptional<IItemHandler> lazyItemHelper = LazyOptional.empty();
@@ -114,9 +118,8 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     protected void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
         nbt.put("inventory", itemStackHandler.serializeNBT());
-        if(randomElement != null) {
-            nbt.putString("randomElement", randomElement.get().getRegistryName().toString());
-        }
+        nbt.putString("randomElement", randomElement.getRegistryName().toString());
+
     }
 
     @Override
@@ -125,7 +128,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         itemStackHandler.deserializeNBT(nbt.getCompound("inventory"));
         String name = nbt.getString("randomElement");
         Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(name));
-        randomElement = Optional.of(block);
+        randomElement = block;
     }
 
     private static boolean canInsertItemInOutputSlot(SimpleContainer inventory, ItemStack itemStack) {
@@ -146,27 +149,26 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         Containers.dropContents(this.level, this.worldPosition, inventory);
     }
 
-    private Optional<Block> randomElement;
+    private Block randomElement;
 
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, InfiniteOreMinerEntity pEntity) {
         if (level.isClientSide) {
             return;
         }
 
-
         pEntity.timer += 1;
         if (pEntity.timer >= 60) {
 
-            if (pEntity.randomElement.isPresent()) {
+            if (pEntity.randomElement != null) {
 
                 int slotsCount = pEntity.itemStackHandler.getSlots();
                 SimpleContainer inventory = new SimpleContainer(slotsCount);
                 inventory.setItem(0, pEntity.itemStackHandler.getStackInSlot(0));
-                if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.randomElement.get()))) {
+                if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.randomElement))) {
 
                     //pEntity.itemStackHandler.extractItem(0, 1, false);
 
-                    pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.randomElement.get(),
+                    pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.randomElement,
                             pEntity.itemStackHandler.getStackInSlot(0).getCount() + 1));
                     pEntity.timer = 0;
                 }
