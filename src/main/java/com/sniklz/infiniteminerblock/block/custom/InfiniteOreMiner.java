@@ -91,7 +91,7 @@ public class InfiniteOreMiner extends BaseEntityBlock {
             if (saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos) == null) {
                 ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
                 Optional<Block> block = itag.getRandomElement(new Random());
-                int ore_size = (int) (100 + (Math.random() * (500 + chunkPos.x + chunkPos.z)));
+                int ore_size = (int) (1000 + (Math.random() * (2000 + chunkPos.x + chunkPos.z)));
                 BlockAndSize blockAndSize = new BlockAndSize(block.get(), ore_size);
                 saveLoadMineChunk.putNewChunkInfoToMap(chunkPos, blockAndSize);
 

@@ -2,12 +2,15 @@ package com.sniklz.infiniteminerblock.screen;
 
 import com.sniklz.infiniteminerblock.block.BlockRegister;
 import com.sniklz.infiniteminerblock.block.entity.InfiniteOreMinerEntity;
+import com.sniklz.infiniteminerblock.networking.ModMessages;
+import com.sniklz.infiniteminerblock.networking.packet.RequestDataFromServerC2SPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
@@ -32,6 +35,7 @@ public class InfiniteOreMinerMenu extends AbstractContainerMenu {
                 new SimpleContainerData(1));
     }
 
+
     public InfiniteOreMinerMenu(int id, Inventory inventory, BlockEntity entity, ContainerData data) {
         super(ModMenuTypes.INFINITE_ORE_MINER_MENU.get(), id);
 
@@ -44,7 +48,7 @@ public class InfiniteOreMinerMenu extends AbstractContainerMenu {
         addPlayerHotbar(inventory);
 
         this.blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(iItemHandler -> {
-            this.addSlot(new SlotItemHandler(iItemHandler, 0, 12, 15));
+            this.addSlot(new SlotItemHandler(iItemHandler, 0, 70, 31));
         });
 
         //addDataSlots(data);
@@ -53,6 +57,7 @@ public class InfiniteOreMinerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player pPlayer) {
+        ModMessages.sendToServer(new RequestDataFromServerC2SPacket(blockEntity.getBlockPos()));
         return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
                 pPlayer, BlockRegister.INFINITE_ORE_MINER.get());
     }

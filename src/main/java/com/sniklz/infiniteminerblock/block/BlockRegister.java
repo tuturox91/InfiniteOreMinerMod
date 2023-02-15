@@ -2,6 +2,7 @@ package com.sniklz.infiniteminerblock.block;
 
 import com.sniklz.infiniteminerblock.Infiniteminerblock;
 import com.sniklz.infiniteminerblock.block.custom.InfiniteOreMiner;
+import com.sniklz.infiniteminerblock.item.InfiniteBlockItem;
 import com.sniklz.infiniteminerblock.item.ItemsRegister;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -26,7 +27,7 @@ public class BlockRegister {
     }
 
     public static <T extends Block> RegistryObject<Item> registryBlockItem (String name, RegistryObject<T> block, CreativeModeTab tab) {
-        return ItemsRegister.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(Infiniteminerblock.TAB)));
+        return ItemsRegister.ITEMS.register(name, () -> new InfiniteBlockItem(block.get(), new Item.Properties().tab(Infiniteminerblock.TAB)));
     }
 
     public static void register(IEventBus bus) {

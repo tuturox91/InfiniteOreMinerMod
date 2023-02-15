@@ -1,5 +1,7 @@
 package com.sniklz.infiniteminerblock.block.entity;
 
+import com.sniklz.infiniteminerblock.networking.ModMessages;
+import com.sniklz.infiniteminerblock.networking.packet.GiveOreDataS2CPacket;
 import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
 import com.sniklz.infiniteminerblock.screen.InfiniteOreMinerMenu;
 import com.sniklz.infiniteminerblock.util.BlockAndSize;
@@ -84,9 +86,16 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         this.randomElement = randomElement;
     }
 */
+    @Nullable
+    @Override
+    public Level getLevel() {
+        return super.getLevel();
+    }
+
     public void someWorks(Level level, BlockPos pos) {
         System.out.println(level.getChunkAt(pos).getPos());
         ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
+
         //this.randomElement = itag.getRandomElement(new Random());
     }
 
@@ -151,6 +160,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     public void load(CompoundTag nbt) {
         super.load(nbt);
         itemStackHandler.deserializeNBT(nbt.getCompound("inventory"));
+
         //this.chunkPos = new ChunkPos(nbt.getInt("x"), nbt.getInt("z"));
     }
 

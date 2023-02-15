@@ -5,6 +5,7 @@ import com.sniklz.infiniteminerblock.block.BlockRegister;
 import com.sniklz.infiniteminerblock.block.entity.BlockEntityRegister;
 import com.sniklz.infiniteminerblock.block.entity.InfiniteOreMinerEntity;
 import com.sniklz.infiniteminerblock.item.ItemsRegister;
+import com.sniklz.infiniteminerblock.networking.ModMessages;
 import com.sniklz.infiniteminerblock.screen.InfiniteOreMinerScreen;
 import com.sniklz.infiniteminerblock.screen.ModMenuTypes;
 import net.minecraft.ChatFormatting;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -70,6 +72,8 @@ public class Infiniteminerblock {
     private void setup(final FMLCommonSetupEvent event) {
         LOGGER.info("HELLO FROM PREINIT");
         LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+
+        ModMessages.register();
     }
 
     public static final CreativeModeTab TAB = new CreativeModeTab(MODID) {
@@ -81,7 +85,7 @@ public class Infiniteminerblock {
 
     @SubscribeEvent
     public void OnBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if(event.getEntity() instanceof Player) {
+       /* if(event.getEntity() instanceof Player) {
             int counter = 0;
             Player player = (Player) event.getEntity();
             Level level = player.getLevel();
@@ -92,14 +96,12 @@ public class Infiniteminerblock {
                     if(event.getPlacedBlock().is(BlockRegister.INFINITE_ORE_MINER.get()) && counter > 1) {
                         player.sendMessage(new TextComponent("In one chunk can be placed only one block").withStyle(ChatFormatting.RED), player.getUUID());
                         event.setCanceled(true);
-                        break;
                     }
                 }
-            }
+            }*/
             System.out.println("test");
 
-        }
+        //}
     }
-
 
 }
