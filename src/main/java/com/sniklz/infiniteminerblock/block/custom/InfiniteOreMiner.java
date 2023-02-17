@@ -2,9 +2,12 @@ package com.sniklz.infiniteminerblock.block.custom;
 
 import com.sniklz.infiniteminerblock.block.entity.BlockEntityRegister;
 import com.sniklz.infiniteminerblock.block.entity.InfiniteOreMinerEntity;
+import com.sniklz.infiniteminerblock.networking.ModMessages;
+import com.sniklz.infiniteminerblock.networking.packet.GiveOreDataS2CPacket;
 import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
 import com.sniklz.infiniteminerblock.util.BlockAndSize;
 import com.sniklz.infiniteminerblock.util.ModTags;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -91,7 +94,11 @@ public class InfiniteOreMiner extends BaseEntityBlock {
             if (saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos) == null) {
                 ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
                 Optional<Block> block = itag.getRandomElement(new Random());
-                int ore_size = (int) (1000 + (Math.random() * (2000 + chunkPos.x + chunkPos.z)));
+                double modifier =  1+((int)Math.sqrt(chunkPos.x * chunkPos.x+ chunkPos.z * chunkPos.z)/63)*0.1;
+                //int ore_size = (int) (1000 + (Math.random() * (2000 + chunkPos.x + chunkPos.z)));
+                double random = 800 + (Math.random() * 2000);
+                int ore_size = (int) (random * modifier);
+                //ModMessages.sendToClients(new GiveOreDataS2CPacket(ore_size));
                 BlockAndSize blockAndSize = new BlockAndSize(block.get(), ore_size);
                 saveLoadMineChunk.putNewChunkInfoToMap(chunkPos, blockAndSize);
 

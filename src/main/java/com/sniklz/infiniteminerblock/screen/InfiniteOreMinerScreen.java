@@ -4,6 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.sniklz.infiniteminerblock.Infiniteminerblock;
 import com.sniklz.infiniteminerblock.client.ClientData;
+import com.sniklz.infiniteminerblock.networking.ModMessages;
+import com.sniklz.infiniteminerblock.networking.packet.RequestDataFromServerC2SPacket;
+import com.sniklz.infiniteminerblock.util.Observed;
+import com.sniklz.infiniteminerblock.util.Observer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -22,12 +26,16 @@ public class InfiniteOreMinerScreen extends AbstractContainerScreen<InfiniteOreM
         super(pMenu, pPlayerInventory, pTitle);
         menu = pMenu;
         this.inventoryLabelY =  this.imageHeight - 90;
+
     }
 
 
     private static PoseStack poseStack;
 
-
+    @Override
+    public InfiniteOreMinerMenu getMenu() {
+        return menu;
+    }
 
     @Override
     protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
@@ -40,7 +48,9 @@ public class InfiniteOreMinerScreen extends AbstractContainerScreen<InfiniteOreM
         int y = (height - imageHeight) / 2;
 
         this.blit(pPoseStack, x, y, 0, 0, imageWidth, imageHeight);
-        this.font.draw(pPoseStack, "My Text: " + ClientData.getOreSize(), x + 40, y+63, 0x404040);
+
+        ModMessages.sendToServer(new RequestDataFromServerC2SPacket(this.menu.blockEntity.getBlockPos()));
+        this.font.draw(pPoseStack, "My Text: " + menu.blockEntity.getOreSize(), x + 40, y+63, 0x404040);
     }
 
     @Override

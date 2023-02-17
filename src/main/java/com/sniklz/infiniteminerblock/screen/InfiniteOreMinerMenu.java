@@ -31,12 +31,13 @@ public class InfiniteOreMinerMenu extends AbstractContainerMenu {
     //private final ContainerData data;
 
     public InfiniteOreMinerMenu(int id, Inventory inventory, FriendlyByteBuf extraData) {
-        this(id, inventory, inventory.player.level.getBlockEntity(extraData.readBlockPos()),
-                new SimpleContainerData(1));
+        this(id, inventory, inventory.player.level.getBlockEntity(extraData.readBlockPos()));
     }
 
 
-    public InfiniteOreMinerMenu(int id, Inventory inventory, BlockEntity entity, ContainerData data) {
+
+
+    public InfiniteOreMinerMenu(int id, Inventory inventory, BlockEntity entity) {
         super(ModMenuTypes.INFINITE_ORE_MINER_MENU.get(), id);
 
         checkContainerSize(inventory, 1);
@@ -57,7 +58,7 @@ public class InfiniteOreMinerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player pPlayer) {
-        ModMessages.sendToServer(new RequestDataFromServerC2SPacket(blockEntity.getBlockPos()));
+
         return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
                 pPlayer, BlockRegister.INFINITE_ORE_MINER.get());
     }

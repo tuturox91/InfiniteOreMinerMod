@@ -45,7 +45,7 @@ public class RequestDataFromServerC2SPacket {
             BlockPos blockPos = new BlockPos(posX, posY, posZ);
             InfiniteOreMinerEntity infiniteOreMinerEntity = (InfiniteOreMinerEntity) level.getBlockEntity(blockPos);
             int oreSize = infiniteOreMinerEntity.getOreSize();
-            ModMessages.sendToPlayer(new GiveOreDataS2CPacket(oreSize), player);
+            ModMessages.sendToPlayer(new GiveOreDataS2CPacket(oreSize, blockPos), player);
         });
         return true;
     }

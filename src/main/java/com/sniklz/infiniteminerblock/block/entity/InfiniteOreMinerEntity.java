@@ -2,10 +2,12 @@ package com.sniklz.infiniteminerblock.block.entity;
 
 import com.sniklz.infiniteminerblock.networking.ModMessages;
 import com.sniklz.infiniteminerblock.networking.packet.GiveOreDataS2CPacket;
+import com.sniklz.infiniteminerblock.networking.packet.RequestDataFromServerC2SPacket;
 import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
 import com.sniklz.infiniteminerblock.screen.InfiniteOreMinerMenu;
 import com.sniklz.infiniteminerblock.util.BlockAndSize;
 import com.sniklz.infiniteminerblock.util.ModTags;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -43,12 +45,9 @@ import java.util.Random;
 
 public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider {
 
-    protected final ContainerData data = null;
-
     protected Block mineableBlock;
     protected int oreSize;
 
-    //protected ChunkPos chunkPos;
 
     public Block getMineableBlock() {
         return mineableBlock;
@@ -82,33 +81,16 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         }
     };
 
-   /* public void setRandomElement(Block randomElement) {
-        this.randomElement = randomElement;
-    }
-*/
     @Nullable
     @Override
     public Level getLevel() {
         return super.getLevel();
     }
 
-    public void someWorks(Level level, BlockPos pos) {
-        System.out.println(level.getChunkAt(pos).getPos());
-        ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
-
-        //this.randomElement = itag.getRandomElement(new Random());
-    }
-
     private LazyOptional<IItemHandler> lazyItemHelper = LazyOptional.empty();
 
     public InfiniteOreMinerEntity(BlockPos pPos, BlockState pBlockState) {
         super(BlockEntityRegister.INFINITE_ORE_MINER_ENTITY.get(), pPos, pBlockState);
-
-
-
-
-        /*System.out.println(level.getChunkAt(this.getBlockPos()));
-        Infiniteminerblock.LOGGER.info(level.getChunkAt(this.getBlockPos()).toString());*/
     }
 
 
@@ -121,8 +103,9 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return new InfiniteOreMinerMenu(pContainerId, pPlayerInventory, this, this.data);
+        return new InfiniteOreMinerMenu(pContainerId, pPlayerInventory, this);
     }
+
 
 
     @NotNull
@@ -152,16 +135,12 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     protected void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
         nbt.put("inventory", itemStackHandler.serializeNBT());
-        //nbt.putInt("x", chunkPos.x);
-        //nbt.putInt("z", chunkPos.z);
     }
 
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
         itemStackHandler.deserializeNBT(nbt.getCompound("inventory"));
-
-        //this.chunkPos = new ChunkPos(nbt.getInt("x"), nbt.getInt("z"));
     }
 
     private static boolean canInsertItemInOutputSlot(SimpleContainer inventory, ItemStack itemStack) {
@@ -199,7 +178,6 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
             }
         }
 
-
         pEntity.timer += 1;
         if (pEntity.timer >= 60 && pEntity.getOreSize() > 0) {
 
@@ -218,6 +196,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
                     int oreSize1 = pEntity.getOreSize();
                     oreSize1 -=1;
                     pEntity.setOreSize(oreSize1);
+                    //ModMessages.sendToClients(new GiveOreDataS2CPacket(oreSize1));
                     SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
                     saveLoadMineChunk.updateOreSize(level.getChunkAt(blockPos).getPos(), oreSize1--);
                 }

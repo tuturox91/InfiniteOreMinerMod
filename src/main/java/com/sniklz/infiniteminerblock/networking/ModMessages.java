@@ -60,4 +60,8 @@ public class ModMessages {
     public static <MSG> void sendToPlayer(MSG message, ServerPlayer serverPlayer) {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), message);
     }
+
+    public static <MSG> void sendToClients(MSG message) {
+        INSTANCE.send(PacketDistributor.ALL.noArg(), message);
+    }
 }

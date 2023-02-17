@@ -1,6 +1,10 @@
 package com.sniklz.infiniteminerblock.client;
 
-public class ClientData {
+import com.sniklz.infiniteminerblock.util.Observed;
+import com.sniklz.infiniteminerblock.util.Observer;
+import com.sniklz.infiniteminerblock.util.ObserverImpl;
+
+public class ClientData extends ObserverImpl<Integer> {
     private static int OreSize;
 
     public static int getOreSize() {
