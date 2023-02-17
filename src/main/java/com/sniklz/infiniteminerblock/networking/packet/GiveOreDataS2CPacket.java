@@ -2,7 +2,6 @@ package com.sniklz.infiniteminerblock.networking.packet;
 
 import ca.weblite.objc.Proxy;
 import com.sniklz.infiniteminerblock.block.entity.InfiniteOreMinerEntity;
-import com.sniklz.infiniteminerblock.client.ClientData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
