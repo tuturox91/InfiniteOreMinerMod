@@ -1,6 +1,7 @@
 package com.sniklz.infiniteminerblock.networking;
 
 import com.sniklz.infiniteminerblock.Infiniteminerblock;
+import com.sniklz.infiniteminerblock.networking.packet.EnergySyncS2CPacket;
 import com.sniklz.infiniteminerblock.networking.packet.GiveOreDataS2CPacket;
 import com.sniklz.infiniteminerblock.networking.packet.RequestDataFromServerC2SPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -38,6 +39,12 @@ public class ModMessages {
                 .decoder(GiveOreDataS2CPacket::new)
                 .encoder(GiveOreDataS2CPacket::toBytes)
                 .consumer(GiveOreDataS2CPacket::handle)
+                .add();
+
+        net.messageBuilder(EnergySyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(EnergySyncS2CPacket::new)
+                .encoder(EnergySyncS2CPacket::toBytes)
+                .consumer(EnergySyncS2CPacket::handle)
                 .add();
 
 /*        net.messageBuilder(GetRecipecListC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)

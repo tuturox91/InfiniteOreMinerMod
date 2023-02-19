@@ -1,11 +1,13 @@
 package com.sniklz.infiniteminerblock.block.entity;
 
 import com.sniklz.infiniteminerblock.networking.ModMessages;
+import com.sniklz.infiniteminerblock.networking.packet.EnergySyncS2CPacket;
 import com.sniklz.infiniteminerblock.networking.packet.GiveOreDataS2CPacket;
 import com.sniklz.infiniteminerblock.networking.packet.RequestDataFromServerC2SPacket;
 import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
 import com.sniklz.infiniteminerblock.screen.InfiniteOreMinerMenu;
 import com.sniklz.infiniteminerblock.util.BlockAndSize;
+import com.sniklz.infiniteminerblock.util.ModEnergyStorage;
 import com.sniklz.infiniteminerblock.util.ModTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -32,6 +34,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
@@ -106,11 +110,27 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         return new InfiniteOreMinerMenu(pContainerId, pPlayerInventory, this);
     }
 
+    private final ModEnergyStorage ENERGY_STORAGE = new ModEnergyStorage(60000, 256) {
+        @Override
+        public void onEnergyChanged() {
+            setChanged();
+            ModMessages.sendToClients(new EnergySyncS2CPacket(this.energy, getBlockPos()));
+        }
+    };
+
+    private static final int ENERGY_REQ = 5;
+    private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
+
 
 
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if(cap == CapabilityEnergy.ENERGY) {
+            return lazyEnergyHandler.cast();
+        }
+
+
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return lazyItemHelper.cast();
         }
@@ -121,6 +141,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     public void onLoad() {
         super.onLoad();
         lazyItemHelper = LazyOptional.of(() -> itemStackHandler);
+        lazyEnergyHandler = LazyOptional.of(() -> ENERGY_STORAGE);
     }
 
     @Override
@@ -135,12 +156,14 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     protected void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
         nbt.put("inventory", itemStackHandler.serializeNBT());
+        nbt.putInt("tech_craft_energy", ENERGY_STORAGE.getEnergyStored());
     }
 
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
         itemStackHandler.deserializeNBT(nbt.getCompound("inventory"));
+        ENERGY_STORAGE.setEnergy(nbt.getInt("tech_craft_energy") );
     }
 
     private static boolean canInsertItemInOutputSlot(SimpleContainer inventory, ItemStack itemStack) {
@@ -178,29 +201,54 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
             }
         }
 
-        pEntity.timer += 1;
-        if (pEntity.timer >= 60 && pEntity.getOreSize() > 0) {
+        extractEnergy(pEntity);
+        if(hasEnoughEnergy(pEntity)) {
+            pEntity.timer += 1;
+            if (pEntity.timer >= 60 && pEntity.getOreSize() > 0) {
 
-            if (pEntity.getMineableBlock() != null) {
+                if (pEntity.getMineableBlock() != null) {
 
-                int slotsCount = pEntity.itemStackHandler.getSlots();
-                SimpleContainer inventory = new SimpleContainer(slotsCount);
-                inventory.setItem(0, pEntity.itemStackHandler.getStackInSlot(0));
-                if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.getMineableBlock()))) {
 
-                    //pEntity.itemStackHandler.extractItem(0, 1, false);
+                    int slotsCount = pEntity.itemStackHandler.getSlots();
+                    SimpleContainer inventory = new SimpleContainer(slotsCount);
+                    inventory.setItem(0, pEntity.itemStackHandler.getStackInSlot(0));
+                    if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.getMineableBlock()))) {
 
-                    pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.getMineableBlock(),
-                            pEntity.itemStackHandler.getStackInSlot(0).getCount() + 1));
-                    pEntity.timer = 0;
-                    int oreSize1 = pEntity.getOreSize();
-                    oreSize1 -=1;
-                    pEntity.setOreSize(oreSize1);
-                    //ModMessages.sendToClients(new GiveOreDataS2CPacket(oreSize1));
-                    SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
-                    saveLoadMineChunk.updateOreSize(level.getChunkAt(blockPos).getPos(), oreSize1--);
+                        //pEntity.itemStackHandler.extractItem(0, 1, false);
+
+                        pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.getMineableBlock(),
+                                pEntity.itemStackHandler.getStackInSlot(0).getCount() + 1));
+                        pEntity.timer = 0;
+                        int oreSize1 = pEntity.getOreSize();
+                        oreSize1 -= 1;
+                        pEntity.setOreSize(oreSize1);
+                        //ModMessages.sendToClients(new GiveOreDataS2CPacket(oreSize1));
+                        SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
+                        saveLoadMineChunk.updateOreSize(level.getChunkAt(blockPos).getPos(), oreSize1--);
+                    }
                 }
             }
         }
     }
+
+    private static void extractEnergy(InfiniteOreMinerEntity pEntity) {
+        pEntity.ENERGY_STORAGE.extractEnergy(ENERGY_REQ, false);
+    }
+
+    private static boolean hasEnoughEnergy(InfiniteOreMinerEntity pEntity) {
+        return pEntity.ENERGY_STORAGE.getEnergyStored() >= ENERGY_REQ;
+    }
+/*
+    private static boolean hasItemInFirstSlot(InfiniteOreMinerEntity pEntity) {
+        return (pEntity.itemStackHandler.getStackInSlot(0).getItem() == ModItems.DIARUBIUM_INGOT.get());
+    }*/
+
+    public IEnergyStorage getEnergyStorage() {
+        return ENERGY_STORAGE;
+    }
+
+    public void setEnergyLevel(int energy) {
+        this.ENERGY_STORAGE.setEnergy(energy);
+    }
+
 }

@@ -82,4 +82,8 @@ public class InfiniteOreMinerMenu extends AbstractContainerMenu {
         }
     }
 
+    public InfiniteOreMinerEntity getBlockEntity() {
+        return this.blockEntity;
+    }
+
 }
