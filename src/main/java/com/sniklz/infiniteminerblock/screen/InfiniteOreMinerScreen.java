@@ -7,9 +7,13 @@ import com.sniklz.infiniteminerblock.networking.ModMessages;
 import com.sniklz.infiniteminerblock.networking.packet.RequestDataFromServerC2SPacket;
 import com.sniklz.infiniteminerblock.screen.renderer.EnergyInfoArea;
 import com.sniklz.infiniteminerblock.util.MouseUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -90,7 +94,10 @@ public class InfiniteOreMinerScreen extends AbstractContainerScreen<InfiniteOreM
         this.blit(pPoseStack, x, y, 0, 0, imageWidth, imageHeight);
 
         ModMessages.sendToServer(new RequestDataFromServerC2SPacket(this.menu.blockEntity.getBlockPos()));
-        this.font.draw(pPoseStack, "My Text: " + menu.blockEntity.getOreSize(), x + 40, y+63, 0x404040);
+        this.font.draw(pPoseStack, getCountOreString(menu.blockEntity.getOreSize()).withStyle(ChatFormatting.BLACK), x + 64, y+64, 0x404040);
+        this.font.draw(pPoseStack, getCountOreString(menu.blockEntity.getOreSize()), x + 63, y+63, 0x404040);
+
+        //"My Text: " + menu.blockEntity.getOreSize()
 
         energyInfoArea.draw(pPoseStack);
     }
@@ -100,7 +107,21 @@ public class InfiniteOreMinerScreen extends AbstractContainerScreen<InfiniteOreM
         renderBackground(pPoseStack);
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         renderTooltip(pPoseStack, pMouseX, pMouseY);
+    }
 
+    private MutableComponent getCountOreString(int oreSize) {
 
+        if(oreSize == 0) {
+            return new TextComponent("No ore!").withStyle(ChatFormatting.RED);
+        } else if (oreSize > 0 && oreSize < 500) {
+            return new TextComponent("Very few!").withStyle(ChatFormatting.GREEN);
+        } else if(oreSize > 500 && oreSize < 1000) {
+            return new TextComponent("Few!").withStyle(ChatFormatting.BLUE);
+        } else if (oreSize>1000 && oreSize<1500) {
+            return new TextComponent("Medium").withStyle(ChatFormatting.YELLOW);
+        } else if (oreSize>1500) {
+            return new TextComponent("Large!").withStyle(ChatFormatting.GOLD);
+        }
+        return new TextComponent("No ore!").withStyle(ChatFormatting.RED);
     }
 }

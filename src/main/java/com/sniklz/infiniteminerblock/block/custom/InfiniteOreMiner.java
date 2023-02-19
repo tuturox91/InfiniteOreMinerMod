@@ -71,6 +71,7 @@ public class InfiniteOreMiner extends BaseEntityBlock {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
             if (blockEntity instanceof InfiniteOreMinerEntity) {
                 NetworkHooks.openGui(((ServerPlayer) pPlayer), (InfiniteOreMinerEntity) blockEntity, pPos);
+                return InteractionResult.SUCCESS;
             } else {
                 throw new IllegalStateException("Our container provider is missing");
             }

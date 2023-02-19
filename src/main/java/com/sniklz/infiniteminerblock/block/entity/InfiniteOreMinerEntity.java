@@ -122,11 +122,10 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
 
-
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if(cap == CapabilityEnergy.ENERGY) {
+        if (cap == CapabilityEnergy.ENERGY) {
             return lazyEnergyHandler.cast();
         }
 
@@ -151,7 +150,6 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     }
 
 
-
     @Override
     protected void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
@@ -163,7 +161,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     public void load(CompoundTag nbt) {
         super.load(nbt);
         itemStackHandler.deserializeNBT(nbt.getCompound("inventory"));
-        ENERGY_STORAGE.setEnergy(nbt.getInt("tech_craft_energy") );
+        ENERGY_STORAGE.setEnergy(nbt.getInt("tech_craft_energy"));
     }
 
     private static boolean canInsertItemInOutputSlot(SimpleContainer inventory, ItemStack itemStack) {
@@ -175,7 +173,6 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
     }
 
     private int timer = 0;
-
 
 
     public void drops() {
@@ -191,42 +188,37 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         if (level.isClientSide) {
             return;
         }
-        if(pEntity.getMineableBlock() == null && pEntity.getOreSize() == 0) {
+        if (pEntity.getMineableBlock() == null && pEntity.getOreSize() == 0) {
             SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
             BlockAndSize blockAndSize = saveLoadMineChunk.FindBlockAndSizeByChunkPos(level.getChunkAt(blockPos).getPos());
-            if(blockAndSize != null) {
+            if (blockAndSize != null) {
                 pEntity.setMineableBlock(blockAndSize.getChunkBlock());
                 pEntity.setOreSize(blockAndSize.getBlockSize());
                 pEntity.setChanged();
             }
         }
 
-        extractEnergy(pEntity);
-        if(hasEnoughEnergy(pEntity)) {
-            pEntity.timer += 1;
-            if (pEntity.timer >= 60 && pEntity.getOreSize() > 0) {
+        if (pEntity.getMineableBlock() != null) {
+            int slotsCount = pEntity.itemStackHandler.getSlots();
+            SimpleContainer inventory = new SimpleContainer(slotsCount);
+            inventory.setItem(0, pEntity.itemStackHandler.getStackInSlot(0));
+            if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.getMineableBlock()))) {
+                pEntity.timer += 1;
+                extractEnergy(pEntity);
+                if (pEntity.timer >= 60) {
 
-                if (pEntity.getMineableBlock() != null) {
-
-
-                    int slotsCount = pEntity.itemStackHandler.getSlots();
-                    SimpleContainer inventory = new SimpleContainer(slotsCount);
-                    inventory.setItem(0, pEntity.itemStackHandler.getStackInSlot(0));
-                    if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.getMineableBlock()))) {
-
-                        //pEntity.itemStackHandler.extractItem(0, 1, false);
-
-                        pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.getMineableBlock(),
-                                pEntity.itemStackHandler.getStackInSlot(0).getCount() + 1));
-                        pEntity.timer = 0;
-                        int oreSize1 = pEntity.getOreSize();
-                        oreSize1 -= 1;
-                        pEntity.setOreSize(oreSize1);
-                        //ModMessages.sendToClients(new GiveOreDataS2CPacket(oreSize1));
-                        SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
-                        saveLoadMineChunk.updateOreSize(level.getChunkAt(blockPos).getPos(), oreSize1--);
-                    }
+                    pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.getMineableBlock(),
+                            pEntity.itemStackHandler.getStackInSlot(0).getCount() + 1));
+                    pEntity.timer = 0;
+                    int oreSize1 = pEntity.getOreSize();
+                    oreSize1 -= 1;
+                    pEntity.setOreSize(oreSize1);
+                    //ModMessages.sendToClients(new GiveOreDataS2CPacket(oreSize1));
+                    SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
+                    saveLoadMineChunk.updateOreSize(level.getChunkAt(blockPos).getPos(), oreSize1--);
+                    // }
                 }
+
             }
         }
     }
