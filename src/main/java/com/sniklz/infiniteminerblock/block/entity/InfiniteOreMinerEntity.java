@@ -188,7 +188,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         if (level.isClientSide) {
             return;
         }
-        if (pEntity.getMineableBlock() == null && pEntity.getOreSize() == 0) {
+        if (pEntity.getMineableBlock() == null && pEntity.getOreSize() != 0) {
             SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(level);
             BlockAndSize blockAndSize = saveLoadMineChunk.FindBlockAndSizeByChunkPos(level.getChunkAt(blockPos).getPos());
             if (blockAndSize != null) {
@@ -205,7 +205,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
             if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.getMineableBlock()))) {
                 pEntity.timer += 1;
                 extractEnergy(pEntity);
-                if (pEntity.timer >= 60) {
+                if (pEntity.timer >= 60 && hasEnoughEnergy(pEntity)) {
 
                     pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.getMineableBlock(),
                             pEntity.itemStackHandler.getStackInSlot(0).getCount() + 1));

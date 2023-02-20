@@ -20,6 +20,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -93,19 +94,30 @@ public class InfiniteOreMiner extends BaseEntityBlock {
             SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(pLevel);
             ChunkPos chunkPos = pLevel.getChunkAt(pPos).getPos();
             if (saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos) == null) {
-                ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
-                Optional<Block> block = itag.getRandomElement(new Random());
-                double modifier =  1+((int)Math.sqrt(chunkPos.x * chunkPos.x+ chunkPos.z * chunkPos.z)/63)*0.1;
-                //int ore_size = (int) (1000 + (Math.random() * (2000 + chunkPos.x + chunkPos.z)));
-                double random = 800 + (Math.random() * 2000);
-                int ore_size = (int) (random * modifier);
-                //ModMessages.sendToClients(new GiveOreDataS2CPacket(ore_size));
-                BlockAndSize blockAndSize = new BlockAndSize(block.get(), ore_size);
-                saveLoadMineChunk.putNewChunkInfoToMap(chunkPos, blockAndSize);
+                double randomThereIsOre =  (int) (Math.random() * 10d);
+                if(randomThereIsOre >= 6.5) {
+                    ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
+                    Optional<Block> block = itag.getRandomElement(new Random());
+                    double modifier = 1 + ((int) Math.sqrt(chunkPos.x * chunkPos.x + chunkPos.z * chunkPos.z) / 63) * 0.1;
+                    //int ore_size = (int) (1000 + (Math.random() * (2000 + chunkPos.x + chunkPos.z)));
+                    double random = 800 + (Math.random() * 2000);
+                    int ore_size = (int) (random * modifier);
+                    //ModMessages.sendToClients(new GiveOreDataS2CPacket(ore_size));
+                    BlockAndSize blockAndSize = new BlockAndSize(block.get(), ore_size);
+                    saveLoadMineChunk.putNewChunkInfoToMap(chunkPos, blockAndSize);
 
-                entity.setMineableBlock(block.get());
-                entity.setOreSize(ore_size);
-                entity.setChanged();
+                    entity.setMineableBlock(block.get());
+                    entity.setOreSize(ore_size);
+                    entity.setChanged();
+                } else {
+
+                    BlockAndSize blockAndSize = new BlockAndSize(Blocks.AIR, 0);
+                    saveLoadMineChunk.putNewChunkInfoToMap(chunkPos, blockAndSize);
+
+                    entity.setMineableBlock(null);
+                    entity.setOreSize(0);
+                    entity.setChanged();
+                }
                 //this.entity.someWorks(pLevel, pPos);
             } else {
                 BlockAndSize blockAndSize = saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos);

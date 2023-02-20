@@ -94,8 +94,10 @@ public class InfiniteOreMinerScreen extends AbstractContainerScreen<InfiniteOreM
         this.blit(pPoseStack, x, y, 0, 0, imageWidth, imageHeight);
 
         ModMessages.sendToServer(new RequestDataFromServerC2SPacket(this.menu.blockEntity.getBlockPos()));
-        this.font.draw(pPoseStack, getCountOreString(menu.blockEntity.getOreSize()).withStyle(ChatFormatting.BLACK), x + 64, y+64, 0x404040);
-        this.font.draw(pPoseStack, getCountOreString(menu.blockEntity.getOreSize()), x + 63, y+63, 0x404040);
+        TextComponent countOreString = (TextComponent) getCountOreString(menu.blockEntity.getOreSize());
+        double stringSize = (countOreString.getString().length() / 2d) * 5d;
+        this.font.draw(pPoseStack, getCountOreString(menu.blockEntity.getOreSize()).withStyle(ChatFormatting.BLACK), x + (80 - Math.round(stringSize)), y+64, 0x404040);
+        this.font.draw(pPoseStack, getCountOreString(menu.blockEntity.getOreSize()), x + (79 - Math.round(stringSize)), y+63, 0x404040);
 
         //"My Text: " + menu.blockEntity.getOreSize()
 

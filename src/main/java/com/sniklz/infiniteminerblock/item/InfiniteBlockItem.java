@@ -33,7 +33,8 @@ public class InfiniteBlockItem extends BlockItem {
 
         for (BlockEntity blockEntity : blockEntities.values()) {
             if (blockEntity instanceof InfiniteOreMinerEntity) {
-                player.sendMessage(new TextComponent("You can place only one block per chunk").withStyle(ChatFormatting.RED), player.getUUID());
+                if(level.isClientSide)
+                 player.sendMessage(new TextComponent("You can place only one block per chunk").withStyle(ChatFormatting.RED), player.getUUID());
                 return false;
             }
         }
