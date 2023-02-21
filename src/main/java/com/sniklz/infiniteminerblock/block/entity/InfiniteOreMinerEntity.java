@@ -1,5 +1,6 @@
 package com.sniklz.infiniteminerblock.block.entity;
 
+import com.sniklz.infiniteminerblock.config.ModCommonConfigs;
 import com.sniklz.infiniteminerblock.networking.ModMessages;
 import com.sniklz.infiniteminerblock.networking.packet.EnergySyncS2CPacket;
 import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
@@ -92,7 +93,8 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         return new InfiniteOreMinerMenu(pContainerId, pPlayerInventory, this);
     }
 
-    private final ModEnergyStorage ENERGY_STORAGE = new ModEnergyStorage(60000, 256) {
+    private final ModEnergyStorage ENERGY_STORAGE = new ModEnergyStorage(ModCommonConfigs.ENERGY_CAPACITY.get(),
+            ModCommonConfigs.ENERGY_TRANSFER_SIZE.get()) {
         @Override
         public void onEnergyChanged() {
             setChanged();
@@ -100,7 +102,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
         }
     };
 
-    private static final int ENERGY_REQ = 5;
+    private static final int ENERGY_REQ = ModCommonConfigs.ENERGY_REQ_PER_TICK.get();
     private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
     @NotNull
@@ -183,7 +185,7 @@ public class InfiniteOreMinerEntity extends BlockEntity implements MenuProvider 
             if (canInsertAmountIntOutputSlot(inventory) && canInsertItemInOutputSlot(inventory, new ItemStack(pEntity.getMineableBlock()))) {
                 pEntity.timer += 1;
                 extractEnergy(pEntity);
-                if (pEntity.timer >= 60 && hasEnoughEnergy(pEntity)) {
+                if (pEntity.timer >= ModCommonConfigs.TICK_COUNT_TO_PRODUCE_ORE.get() && hasEnoughEnergy(pEntity)) {
 
                     pEntity.itemStackHandler.setStackInSlot(0, new ItemStack(pEntity.getMineableBlock(),
                             pEntity.itemStackHandler.getStackInSlot(0).getCount() + 1));

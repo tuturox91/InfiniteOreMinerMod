@@ -2,6 +2,7 @@ package com.sniklz.infiniteminerblock.block.custom;
 
 import com.sniklz.infiniteminerblock.block.entity.BlockEntityRegister;
 import com.sniklz.infiniteminerblock.block.entity.InfiniteOreMinerEntity;
+import com.sniklz.infiniteminerblock.config.ModCommonConfigs;
 import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
 import com.sniklz.infiniteminerblock.util.BlockAndSize;
 import com.sniklz.infiniteminerblock.util.ModTags;
@@ -84,12 +85,12 @@ public class InfiniteOreMiner extends BaseEntityBlock {
             SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(pLevel);
             ChunkPos chunkPos = pLevel.getChunkAt(pPos).getPos();
             if (saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos) == null) {
-                double randomThereIsOre = (int) (Math.random() * 10d);
-                if (randomThereIsOre >= 6.5) {
+                double randomThereIsOre =  (Math.random() * 10d);
+                if (randomThereIsOre <= ModCommonConfigs.ORE_CHUNK_NEEDED_CHANCE.get()) {
                     ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
                     Optional<Block> block = itag.getRandomElement(new Random());
-                    double modifier = 1 + ((int) Math.sqrt(chunkPos.x * chunkPos.x + chunkPos.z * chunkPos.z) / 63) * 0.1;
-                    double random = 800 + (Math.random() * 2000);
+                    double modifier = 1 + ((int) Math.sqrt(chunkPos.x * chunkPos.x + chunkPos.z * chunkPos.z) / ModCommonConfigs.CHUNK_COUNT_TO_UP_MODIFIER.get()) * 0.1;
+                    double random = ModCommonConfigs.MIN_ORE_VEIN_SIZE.get() + (Math.random() * ModCommonConfigs.MAX_ORE_VEIN_SIZE.get());
                     int ore_size = (int) (random * modifier);
                     BlockAndSize blockAndSize = new BlockAndSize(block.get(), ore_size);
                     saveLoadMineChunk.putNewChunkInfoToMap(chunkPos, blockAndSize);

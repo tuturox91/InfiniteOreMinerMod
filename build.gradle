@@ -17,10 +17,10 @@ plugins {
 apply plugin: 'org.spongepowered.mixin'
 
 group = 'com.sniklz'
-version = '1.0-SNAPSHOT'
+version = '0.9b-1.18.2'
 
 java {
-    archivesBaseName = 'infiniteminerblock'
+    archivesBaseName = 'oreminerblock-forge'
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
@@ -195,10 +195,10 @@ dependencies {
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "infiniteminerblock",
+                "Specification-Title"     : "Ore Miner Block",
                 "Specification-Vendor"    : "sniklz",
                 "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
+                "Implementation-Title"    : "Ore Miner Block",
                 "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "sniklz",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")

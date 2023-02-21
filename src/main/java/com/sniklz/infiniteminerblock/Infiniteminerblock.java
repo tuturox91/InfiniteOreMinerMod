@@ -3,6 +3,7 @@ package com.sniklz.infiniteminerblock;
 import com.mojang.logging.LogUtils;
 import com.sniklz.infiniteminerblock.block.BlockRegister;
 import com.sniklz.infiniteminerblock.block.entity.BlockEntityRegister;
+import com.sniklz.infiniteminerblock.config.ModCommonConfigs;
 import com.sniklz.infiniteminerblock.item.ItemsRegister;
 import com.sniklz.infiniteminerblock.networking.ModMessages;
 import com.sniklz.infiniteminerblock.screen.InfiniteOreMinerScreen;
@@ -13,7 +14,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -35,6 +38,9 @@ public class Infiniteminerblock {
 
         bus.addListener(this::setup);
         bus.addListener(this::clientSetup);
+
+        //ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ModClientConfigs.SPEC, "oreminerblock-client.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModCommonConfigs.SPEC, "oreminerblock-common.toml");
 
         MinecraftForge.EVENT_BUS.register(this);
     }
