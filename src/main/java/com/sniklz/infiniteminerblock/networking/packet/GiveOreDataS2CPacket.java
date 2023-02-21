@@ -6,10 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -39,18 +35,10 @@ public class GiveOreDataS2CPacket {
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
-            //Player player = context.getSender();
-            //Level level = player.getLevel();
-
-            // HERE WE ARE ON THE CLIENT!
-            //if(level.getBlockEntity(blockPos) instanceof InfiniteOreMinerEntity entity) {
-                //entity.setOreSize(oreSize);
-           // }
             ClientLevel level = Minecraft.getInstance().level;
             if(level.getBlockEntity(blockPos) instanceof InfiniteOreMinerEntity entity) {
                 entity.setOreSize(oreSize);
             }
-            //ClientData.setOreSize(oreSize);
         });
         return true;
     }

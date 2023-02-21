@@ -51,8 +51,6 @@ public class SaveLoadMineChunk extends SavedData  {
         this.setDirty();
     }
 
-
-
     public SaveLoadMineChunk() {
 
     }

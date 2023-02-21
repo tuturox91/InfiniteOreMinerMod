@@ -20,7 +20,6 @@ public class ModMenuTypes {
         return MENUS.register(name, () -> IForgeMenuType.create(factory));
     }
 
-
     public static void register(IEventBus bus) {
         MENUS.register(bus);
     }

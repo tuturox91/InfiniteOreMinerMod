@@ -46,18 +46,6 @@ public class ModMessages {
                 .encoder(EnergySyncS2CPacket::toBytes)
                 .consumer(EnergySyncS2CPacket::handle)
                 .add();
-
-/*        net.messageBuilder(GetRecipecListC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(GetRecipecListC2SPacket::new)
-                .encoder(GetRecipecListC2SPacket::toBytes)
-                .consumer(GetRecipecListC2SPacket::handle)
-                .add();
-
-        net.messageBuilder(GetRecipeListS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(GetRecipeListS2CPacket::new)
-                .encoder(GetRecipeListS2CPacket::toBytes)
-                .consumer(GetRecipeListS2CPacket::handle)
-                .add();*/
     }
 
     public static <MSG> void sendToServer(MSG message) {

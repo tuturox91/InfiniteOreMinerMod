@@ -4,7 +4,6 @@ import com.sniklz.infiniteminerblock.Infiniteminerblock;
 import com.sniklz.infiniteminerblock.block.custom.InfiniteOreMiner;
 import com.sniklz.infiniteminerblock.item.InfiniteBlockItem;
 import com.sniklz.infiniteminerblock.item.ItemsRegister;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

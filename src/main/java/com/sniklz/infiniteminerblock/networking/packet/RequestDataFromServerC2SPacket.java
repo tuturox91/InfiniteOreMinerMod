@@ -7,7 +7,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-
 import java.util.function.Supplier;
 
 public class RequestDataFromServerC2SPacket {
@@ -15,7 +14,6 @@ public class RequestDataFromServerC2SPacket {
     private int posX;
     private int posY;
     private int posZ;
-
 
     public RequestDataFromServerC2SPacket(BlockPos pos) {
         this.posX = pos.getX();
@@ -34,7 +32,6 @@ public class RequestDataFromServerC2SPacket {
         buf.writeInt(posY);
         buf.writeInt(posZ);
     }
-
 
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();

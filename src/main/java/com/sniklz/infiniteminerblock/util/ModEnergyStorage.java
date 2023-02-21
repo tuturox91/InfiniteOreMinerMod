@@ -4,7 +4,6 @@ import net.minecraftforge.energy.EnergyStorage;
 
 public abstract class ModEnergyStorage extends EnergyStorage {
 
-
     public ModEnergyStorage(int capacity, int maxTransfer) {
         super(capacity, maxTransfer);
     }

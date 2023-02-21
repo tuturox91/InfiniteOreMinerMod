@@ -2,20 +2,14 @@ package com.sniklz.infiniteminerblock.block.custom;
 
 import com.sniklz.infiniteminerblock.block.entity.BlockEntityRegister;
 import com.sniklz.infiniteminerblock.block.entity.InfiniteOreMinerEntity;
-import com.sniklz.infiniteminerblock.networking.ModMessages;
-import com.sniklz.infiniteminerblock.networking.packet.GiveOreDataS2CPacket;
 import com.sniklz.infiniteminerblock.saveData.SaveLoadMineChunk;
 import com.sniklz.infiniteminerblock.util.BlockAndSize;
 import com.sniklz.infiniteminerblock.util.ModTags;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -32,14 +26,10 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITag;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
 public class InfiniteOreMiner extends BaseEntityBlock {
-
-    //private InfiniteOreMinerEntity entity;
 
     public InfiniteOreMiner(Properties pProperties) {
         super(pProperties);
@@ -94,15 +84,13 @@ public class InfiniteOreMiner extends BaseEntityBlock {
             SaveLoadMineChunk saveLoadMineChunk = SaveLoadMineChunk.get(pLevel);
             ChunkPos chunkPos = pLevel.getChunkAt(pPos).getPos();
             if (saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos) == null) {
-                double randomThereIsOre =  (int) (Math.random() * 10d);
-                if(randomThereIsOre >= 6.5) {
+                double randomThereIsOre = (int) (Math.random() * 10d);
+                if (randomThereIsOre >= 6.5) {
                     ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
                     Optional<Block> block = itag.getRandomElement(new Random());
                     double modifier = 1 + ((int) Math.sqrt(chunkPos.x * chunkPos.x + chunkPos.z * chunkPos.z) / 63) * 0.1;
-                    //int ore_size = (int) (1000 + (Math.random() * (2000 + chunkPos.x + chunkPos.z)));
                     double random = 800 + (Math.random() * 2000);
                     int ore_size = (int) (random * modifier);
-                    //ModMessages.sendToClients(new GiveOreDataS2CPacket(ore_size));
                     BlockAndSize blockAndSize = new BlockAndSize(block.get(), ore_size);
                     saveLoadMineChunk.putNewChunkInfoToMap(chunkPos, blockAndSize);
 
@@ -118,21 +106,12 @@ public class InfiniteOreMiner extends BaseEntityBlock {
                     entity.setOreSize(0);
                     entity.setChanged();
                 }
-                //this.entity.someWorks(pLevel, pPos);
             } else {
                 BlockAndSize blockAndSize = saveLoadMineChunk.FindBlockAndSizeByChunkPos(chunkPos);
                 entity.setMineableBlock(blockAndSize.getChunkBlock());
                 entity.setOreSize(blockAndSize.getBlockSize());
                 entity.setChanged();
-                //System.out.println(entity.toString());
             }
-            /*InfiniteOreMinerEntity entity = (InfiniteOreMinerEntity) pLevel.getBlockEntity(pPos);
-            Map<BlockPos, BlockEntity> blockEntities = pLevel.getChunkAt(pPos).getBlockEntities();
-            ITag<Block> itag = ForgeRegistries.BLOCKS.tags().getTag(ModTags.Blocks.INFINITE_ORE_MINER_BLOCKS);
-            Block block = itag.getRandomElement(new Random()).get();
-            entity.setRandomElement(block);*/
-
-            //this.entity.someWorks(pLevel, pPos);
         }
     }
 

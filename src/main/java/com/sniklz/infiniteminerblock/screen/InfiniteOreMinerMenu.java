@@ -2,29 +2,19 @@ package com.sniklz.infiniteminerblock.screen;
 
 import com.sniklz.infiniteminerblock.block.BlockRegister;
 import com.sniklz.infiniteminerblock.block.entity.InfiniteOreMinerEntity;
-import com.sniklz.infiniteminerblock.networking.ModMessages;
-import com.sniklz.infiniteminerblock.networking.packet.RequestDataFromServerC2SPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.ContainerSynchronizer;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.data.ForgeBlockTagsProvider;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-import org.jetbrains.annotations.Nullable;
 
 public class InfiniteOreMinerMenu extends AbstractContainerMenu {
-
-
 
     public final InfiniteOreMinerEntity blockEntity;
     private final Level level;
@@ -34,16 +24,12 @@ public class InfiniteOreMinerMenu extends AbstractContainerMenu {
         this(id, inventory, inventory.player.level.getBlockEntity(extraData.readBlockPos()));
     }
 
-
-
-
     public InfiniteOreMinerMenu(int id, Inventory inventory, BlockEntity entity) {
         super(ModMenuTypes.INFINITE_ORE_MINER_MENU.get(), id);
 
         checkContainerSize(inventory, 1);
         blockEntity = (InfiniteOreMinerEntity) entity;
         this.level = inventory.player.level;
-        //this.data = data;
 
         addPlayerInventory(inventory);
         addPlayerHotbar(inventory);
@@ -51,8 +37,6 @@ public class InfiniteOreMinerMenu extends AbstractContainerMenu {
         this.blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(iItemHandler -> {
             this.addSlot(new SlotItemHandler(iItemHandler, 0, 70, 31));
         });
-
-        //addDataSlots(data);
 
     }
 

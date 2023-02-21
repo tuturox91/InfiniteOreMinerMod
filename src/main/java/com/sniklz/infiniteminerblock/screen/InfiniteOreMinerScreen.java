@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -72,8 +71,6 @@ public class InfiniteOreMinerScreen extends AbstractContainerScreen<InfiniteOreM
 
     //##########################################
 
-
-
     private static PoseStack poseStack;
 
     @Override
@@ -98,8 +95,6 @@ public class InfiniteOreMinerScreen extends AbstractContainerScreen<InfiniteOreM
         double stringSize = (countOreString.getString().length() / 2d) * 5d;
         this.font.draw(pPoseStack, getCountOreString(menu.blockEntity.getOreSize()).withStyle(ChatFormatting.BLACK), x + (80 - Math.round(stringSize)), y+64, 0x404040);
         this.font.draw(pPoseStack, getCountOreString(menu.blockEntity.getOreSize()), x + (79 - Math.round(stringSize)), y+63, 0x404040);
-
-        //"My Text: " + menu.blockEntity.getOreSize()
 
         energyInfoArea.draw(pPoseStack);
     }
