@@ -1,6 +1,7 @@
 {
-  "parent": "block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "infiniteminerblock:block/infinite_ore_miner"
+    "end": "infiniteminerblock:block/infinite_ore_miner_top",
+    "side": "infiniteminerblock:block/infinite_ore_miner"
   }
 }
